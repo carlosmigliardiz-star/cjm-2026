@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Journey Map — Defontana</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #f8fafc; --surface: #fff; --border: #e2e8f0;
+  --text: #0f172a; --muted: #64748b; --faint: #94a3b8;
+  --orange: #e85d04; --orange-bg: #fff7ed;
+  --red: #ef4444; --red-bg: #fff1f2;
+  --green: #16a34a; --green-bg: #f0fdf4;
+  --blue: #3b82f6; --blue-bg: #eff6ff;
+  --yellow: #f59e0b; --yellow-bg: #fffbeb;
+  --purple: #a855f7; --purple-bg: #faf5ff;
+  --dark: #0f172a;
+  --radius: 12px; --radius-sm: 7px;
+  --shadow: 0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,.14);
+}
+body { font-family:'Inter','Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:24px 20px 48px; }
+
+/* ── TOP BAR ── */
+.topbar { max-width:1480px; margin:0 auto 24px; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.topbar-left { border-left:4px solid var(--orange); padding-left:14px; }
+.topbar-left h1 { font-size:22px; font-weight:700; letter-spacing:-.4px; }
+.topbar-left p  { font-size:13px; color:var(--muted); margin-top:4px; max-width:600px; line-height:1.5; }
+.topbar-badge { display:flex; align-items:center; gap:6px; background:var(--dark); color:#94a3b8; font-size:11px; font-weight:600; padding:6px 12px; border-radius:20px; white-space:nowrap; align-self:flex-start; margin-top:4px; }
+.topbar-badge span { color:#22c55e; }
+
+/* ── LEGEND ── */
+.legend { max-width:1480px; margin:0 auto 18px; display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+.legend-label { font-size:11px; font-weight:700; color:var(--faint); text-transform:uppercase; letter-spacing:.5px; }
+.legend-item  { display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--muted); font-weight:500; }
+.legend-dot   { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
+
+/* ── SIGNALS LAYER ── */
+.signals-wrap { max-width:1480px; margin:0 auto 8px; }
+.signals-panel { background:linear-gradient(135deg,#0f172a,#1a2744); border-radius:var(--radius); border:1px solid #1e3a5f; overflow:hidden; }
+.signals-head { display:flex; align-items:center; gap:10px; padding:14px 20px 10px; border-bottom:1px solid #1e3a5f; cursor:pointer; user-select:none; }
+.signals-head-icon { font-size:18px; }
+.signals-head-text { flex:1; }
+.signals-head-title { font-size:13px; font-weight:700; color:#f1f5f9; }
+.signals-head-sub   { font-size:11px; color:#475569; margin-top:2px; }
+.signals-toggle { font-size:11px; font-weight:600; color:#475569; background:#1e293b; border:1px solid #334155; padding:4px 10px; border-radius:6px; cursor:pointer; transition:all .2s; }
+.signals-toggle:hover { color:#94a3b8; }
+.signals-grid { display:flex; padding:14px 16px 16px; gap:0; }
+.signals-grid.collapsed { display:none; }
+.signal-col { flex:1; display:flex; flex-direction:column; gap:5px; padding:0 8px; border-right:1px dashed #1e3a5f; }
+.signal-col:first-child { padding-left:0; }
+.signal-col:last-child  { padding-right:0; border-right:none; }
+.signal-col-label { font-size:9px; font-weight:700; color:#334155; text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; }
+.signal-tag { font-size:10px; font-weight:600; padding:4px 7px; border-radius:5px; line-height:1.3; }
+.sig-risk   { background:rgba(239,68,68,.12);  color:#fca5a5; border:1px solid rgba(239,68,68,.2); }
+.sig-intent { background:rgba(251,191,36,.10); color:#fcd34d; border:1px solid rgba(251,191,36,.2); }
+.sig-action { background:rgba(232,93,4,.12);   color:#fdba74; border:1px solid rgba(232,93,4,.2); }
+.sig-growth { background:rgba(34,197,94,.10);  color:#86efac; border:1px solid rgba(34,197,94,.2); }
+
+/* ── CONNECTOR ── */
+.connector { max-width:1480px; margin:0 auto 14px; display:flex; align-items:center; gap:10px; padding:0 4px; }
+.connector-line { flex:1; height:2px; background:repeating-linear-gradient(90deg,#cbd5e1 0,#cbd5e1 6px,transparent 6px,transparent 12px); }
+.connector-label { font-size:10px; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:.6px; white-space:nowrap; }
+
+/* ── PIPELINE ── */
+.pipeline-wrap { max-width:1480px; margin:0 auto; }
+.pipeline { display:flex; align-items:stretch; gap:0; overflow-x:auto; padding-bottom:8px; }
+.pipeline::-webkit-scrollbar { height:4px; }
+.pipeline::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:4px; }
+.stage-wrap { display:flex; align-items:stretch; flex:1; min-width:200px; }
+.stage-wrap:last-child .arrow { display:none; }
+.arrow { flex-shrink:0; width:22px; display:flex; align-items:center; justify-content:center; }
+.arrow svg { width:18px; height:18px; color:#cbd5e1; }
+
+/* ── CARD ── */
+.card { flex:1; border-radius:var(--radius); border:1.5px solid var(--border); background:var(--surface); display:flex; flex-direction:column; overflow:hidden; cursor:pointer; transition:box-shadow .2s,transform .15s,border-color .2s; }
+.card:hover { box-shadow:var(--shadow-lg); transform:translateY(-3px); }
+.card-strip { height:4px; width:100%; }
+.strip-1{background:#94a3b8;} .strip-2{background:#f97316;} .strip-3{background:#eab308;}
+.strip-4{background:#22c55e;} .strip-5{background:#3b82f6;} .strip-6{background:#a855f7;}
+.card-1:hover{border-color:#94a3b8;} .card-2:hover{border-color:#f97316;} .card-3:hover{border-color:#eab308;}
+.card-4:hover{border-color:#22c55e;} .card-5:hover{border-color:#3b82f6;} .card-6:hover{border-color:#a855f7;}
+.card-head { padding:14px 14px 8px; display:flex; flex-direction:column; gap:6px; }
+.card-meta { display:flex; align-items:center; gap:8px; }
+.stage-num  { font-size:10px; font-weight:700; color:var(--faint); letter-spacing:.6px; text-transform:uppercase; }
+.stage-icon { font-size:20px; line-height:1; }
+.card-head h2 { font-size:13px; font-weight:700; color:var(--text); line-height:1.3; }
+.mental-pill { margin:0 12px 8px; background:#f1f5f9; border-radius:6px; padding:7px 10px; font-size:11px; color:#475569; font-style:italic; line-height:1.4; border-left:3px solid #94a3b8; }
+.card-cta { margin:0 12px 12px; display:flex; align-items:center; justify-content:space-between; }
+.card-cta-btn { font-size:10px; font-weight:600; color:var(--orange); background:var(--orange-bg); border:1px solid #fed7aa; padding:4px 10px; border-radius:6px; cursor:pointer; transition:all .15s; }
+.card-cta-btn:hover { background:#fed7aa; }
+.card-kpi { margin:auto 12px 12px; background:var(--dark); border-radius:var(--radius-sm); padding:7px 10px; display:flex; align-items:center; gap:6px; }
+.card-kpi-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#475569; white-space:nowrap; }
+.card-kpi-value { font-size:10.5px; font-weight:600; color:#e2e8f0; flex:1; }
+
+/* ── FOOTER ── */
+.footer { max-width:1480px; margin:28px auto 0; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:14px; flex-wrap:wrap; gap:8px; }
+.footer-brand { font-size:13px; font-weight:700; color:var(--orange); letter-spacing:.5px; }
+.footer-note  { font-size:11px; color:var(--faint); }
+
+/* ════════════════════════════════
+   MODAL
+════════════════════════════════ */
+.overlay { position:fixed; inset:0; background:rgba(15,23,42,.65); backdrop-filter:blur(4px); z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity .25s; }
+.overlay.open { opacity:1; pointer-events:all; }
+.modal { background:var(--surface); border-radius:16px; width:100%; max-width:860px; max-height:90vh; overflow-y:auto; box-shadow:0 24px 80px rgba(0,0,0,.25); transform:scale(.95) translateY(12px); transition:transform .25s,opacity .25s; opacity:0; display:flex; flex-direction:column; }
+.overlay.open .modal { transform:scale(1) translateY(0); opacity:1; }
+.modal::-webkit-scrollbar { width:4px; }
+.modal::-webkit-scrollbar-thumb { background:#e2e8f0; border-radius:4px; }
+
+/* Modal header */
+.modal-header { padding:20px 24px 16px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; justify-content:space-between; gap:12px; position:sticky; top:0; background:var(--surface); z-index:2; border-radius:16px 16px 0 0; }
+.modal-header-left { display:flex; align-items:center; gap:12px; }
+.modal-stage-icon { font-size:28px; line-height:1; }
+.modal-stage-num  { font-size:10px; font-weight:700; color:var(--faint); text-transform:uppercase; letter-spacing:.6px; }
+.modal-title      { font-size:18px; font-weight:700; color:var(--text); letter-spacing:-.3px; margin-top:2px; }
+.modal-subtitle   { font-size:12px; color:var(--muted); margin-top:3px; font-style:italic; }
+.modal-close { width:32px; height:32px; border-radius:8px; border:1px solid var(--border); background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:16px; transition:all .15s; flex-shrink:0; }
+.modal-close:hover { background:#f1f5f9; color:var(--text); }
+
+/* View toggle */
+.modal-toggle-bar { padding:12px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+.toggle-label { font-size:11px; font-weight:600; color:var(--faint); text-transform:uppercase; letter-spacing:.5px; margin-right:4px; }
+.toggle-btn { font-size:12px; font-weight:600; padding:5px 14px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; transition:all .2s; }
+.toggle-btn.active { background:var(--dark); color:#f1f5f9; border-color:var(--dark); }
+
+/* Modal body */
+.modal-body { padding:20px 24px; flex:1; }
+
+/* View panels */
+.view-panel { display:none; }
+.view-panel.active { display:block; }
+
+/* 2-col grid */
+.modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+@media(max-width:600px){ .modal-grid { grid-template-columns:1fr; } }
+
+.modal-section { border-radius:var(--radius-sm); padding:12px 14px; }
+.modal-section-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; margin-bottom:6px; display:flex; align-items:center; gap:5px; }
+.modal-section-text  { font-size:12px; color:#374151; line-height:1.6; }
+.modal-section-text li { margin-left:14px; margin-bottom:2px; }
+
+.ms-mental   { background:#f8fafc; border-left:3px solid #94a3b8; }
+.ms-mental   .modal-section-label { color:#64748b; }
+.ms-living   { background:#f8fafc; border-left:3px solid #94a3b8; }
+.ms-living   .modal-section-label { color:#64748b; }
+.ms-goal     { background:var(--blue-bg); border-left:3px solid var(--blue); }
+.ms-goal     .modal-section-label { color:#2563eb; }
+.ms-friction { background:var(--red-bg); border-left:3px solid var(--red); }
+.ms-friction .modal-section-label { color:#dc2626; }
+.ms-action   { background:var(--orange-bg); border-left:3px solid var(--orange); }
+.ms-action   .modal-section-label { color:#c2410c; }
+
+/* Truth moment */
+.ms-truth { background:linear-gradient(135deg,#fefce8,#fef9c3); border:1.5px solid #fbbf24; border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:16px; }
+.ms-truth .modal-section-label { color:#92400e; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; margin-bottom:6px; display:flex; align-items:center; gap:5px; }
+.truth-badge { display:inline-flex; align-items:center; gap:3px; background:#fbbf24; color:#78350f; font-size:9px; font-weight:700; padding:1px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:.4px; margin-left:auto; }
+.ms-truth .modal-section-text { color:#78350f; font-size:12px; line-height:1.5; }
+
+/* Bottom strip */
+.modal-bottom { background:#f8fafc; border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:16px; }
+.modal-bottom-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--faint); margin-bottom:10px; }
+.kpi-highlight { display:flex; align-items:center; gap:10px; background:var(--dark); border-radius:var(--radius-sm); padding:10px 14px; margin-bottom:10px; }
+.kpi-hl-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#475569; }
+.kpi-hl-value { font-size:13px; font-weight:700; color:#f1f5f9; flex:1; }
+.kpi-hl-icon  { font-size:16px; }
+
+.signals-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.signal-chip { font-size:10.5px; font-weight:600; padding:4px 10px; border-radius:20px; }
+
+.badges-row { display:flex; gap:8px; flex-wrap:wrap; }
+.badge { font-size:10.5px; font-weight:700; padding:4px 12px; border-radius:20px; }
+.badge-risk { background:var(--red-bg); color:var(--red); border:1px solid #fecaca; }
+.badge-opp  { background:var(--green-bg); color:var(--green); border:1px solid #bbf7d0; }
+.badge-gap  { background:var(--yellow-bg); color:#92400e; border:1px solid #fde68a; }
+
+/* Business view */
+.biz-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
+@media(max-width:600px){ .biz-grid { grid-template-columns:1fr; } }
+.biz-card { border-radius:var(--radius-sm); padding:14px; text-align:center; }
+.biz-card-icon  { font-size:22px; margin-bottom:6px; }
+.biz-card-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; }
+.biz-card-value { font-size:20px; font-weight:800; letter-spacing:-.5px; }
+.biz-card-sub   { font-size:10px; margin-top:3px; }
+.biz-mrr  { background:var(--green-bg);  border:1px solid #bbf7d0; }
+.biz-mrr  .biz-card-label { color:var(--green); } .biz-mrr  .biz-card-value { color:#15803d; }
+.biz-churn{ background:var(--red-bg);    border:1px solid #fecaca; }
+.biz-churn .biz-card-label { color:var(--red); }   .biz-churn .biz-card-value { color:#b91c1c; }
+.biz-ndr  { background:var(--blue-bg);   border:1px solid #bfdbfe; }
+.biz-ndr  .biz-card-label { color:var(--blue); }   .biz-ndr  .biz-card-value { color:#1d4ed8; }
+.biz-insight { background:#f8fafc; border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; }
+.biz-insight-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--faint); margin-bottom:6px; }
+.biz-insight-text  { font-size:12px; color:#374151; line-height:1.6; }
+
+/* Modal footer */
+.modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; position:sticky; bottom:0; background:var(--surface); border-radius:0 0 16px 16px; }
+.modal-nav { display:flex; gap:8px; }
+.nav-btn { font-size:12px; font-weight:600; padding:8px 14px; border-radius:8px; border:1.5px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:5px; }
+.nav-btn:hover:not(:disabled) { border-color:var(--text); color:var(--text); }
+.nav-btn:disabled { opacity:.35; cursor:not-allowed; }
+.action-btns { display:flex; gap:8px; }
+.action-btn { font-size:12px; font-weight:600; padding:8px 16px; border-radius:8px; cursor:pointer; transition:all .2s; }
+.btn-revenue { background:var(--green-bg); color:var(--green); border:1.5px solid #bbf7d0; }
+.btn-revenue:hover { background:#dcfce7; }
+.btn-next { background:var(--orange); color:#fff; border:1.5px solid var(--orange); }
+.btn-next:hover { background:#c2410c; }
+.btn-next:disabled { opacity:.35; cursor:not-allowed; }
+
+/* ── INSIGHTS LAYER ── */
+.insights-wrap { max-width:1480px; margin:20px auto 0; }
+.insights-panel { background:var(--surface); border-radius:var(--radius); border:1px solid var(--border); overflow:hidden; box-shadow:var(--shadow); }
+.insights-head { display:flex; align-items:center; gap:10px; padding:14px 20px 12px; border-bottom:1px solid var(--border); cursor:pointer; user-select:none; }
+.insights-head-icon { font-size:18px; }
+.insights-head-text { flex:1; }
+.insights-head-title { font-size:13px; font-weight:700; color:var(--text); }
+.insights-head-sub   { font-size:11px; color:var(--muted); margin-top:2px; }
+.insights-toggle { font-size:11px; font-weight:600; color:var(--muted); background:var(--bg); border:1px solid var(--border); padding:4px 10px; border-radius:6px; cursor:pointer; transition:all .2s; }
+.insights-toggle:hover { border-color:var(--text); color:var(--text); }
+.insights-grid { display:flex; gap:0; padding:0; }
+.insights-grid.collapsed { display:none; }
+
+.insight-col { flex:1; padding:14px 12px; border-right:1px solid var(--border); display:flex; flex-direction:column; gap:8px; min-width:180px; }
+.insight-col:last-child { border-right:none; }
+.insight-col-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--faint); margin-bottom:2px; }
+
+.insight-card { border-radius:8px; padding:10px 11px; border:1.5px solid transparent; position:relative; transition:box-shadow .15s; }
+.insight-card:hover { box-shadow:0 2px 12px rgba(0,0,0,.08); }
+.insight-card + .insight-card { margin-top:0; }
+
+.insight-card.priority-high { background:#fff7ed; border-color:#fed7aa; }
+.insight-card.priority-med  { background:#f8fafc; border-color:#e2e8f0; }
+
+.priority-flag { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; padding:2px 7px; border-radius:20px; margin-bottom:6px; }
+.flag-high { background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
+.flag-med  { background:#f1f5f9; color:#475569; border:1px solid #e2e8f0; }
+
+.insight-problem { font-size:11px; font-weight:700; color:var(--text); line-height:1.4; margin-bottom:5px; }
+.insight-meta { display:flex; flex-direction:column; gap:3px; margin-bottom:6px; }
+.insight-meta-row { display:flex; align-items:baseline; gap:5px; }
+.insight-meta-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--faint); white-space:nowrap; }
+.insight-meta-val   { font-size:10.5px; font-weight:600; color:var(--muted); }
+.insight-meta-val.impact-high { color:#dc2626; }
+.insight-meta-val.impact-med  { color:#d97706; }
+.insight-meta-val.impact-pos  { color:#16a34a; }
+
+.insight-opp { font-size:10.5px; color:#374151; line-height:1.4; padding:6px 8px; background:rgba(59,130,246,.06); border-radius:5px; border-left:2px solid var(--blue); }
+.insight-opp-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--blue); margin-bottom:2px; }
+
+/* ── PLAYBOOKS LAYER ── */
+.playbooks-wrap { max-width:1480px; margin:16px auto 0; }
+.playbooks-panel { background:linear-gradient(135deg,#0c1a2e 0%,#0f2744 100%); border-radius:var(--radius); border:1px solid #1e3a5f; overflow:hidden; }
+.playbooks-head { display:flex; align-items:center; gap:10px; padding:14px 20px 12px; border-bottom:1px solid #1e3a5f; cursor:pointer; user-select:none; }
+.playbooks-head-icon { font-size:18px; }
+.playbooks-head-text { flex:1; }
+.playbooks-head-title { font-size:13px; font-weight:700; color:#f1f5f9; }
+.playbooks-head-sub   { font-size:11px; color:#475569; margin-top:2px; }
+.playbooks-toggle { font-size:11px; font-weight:600; color:#475569; background:#1e293b; border:1px solid #334155; padding:4px 10px; border-radius:6px; cursor:pointer; transition:all .2s; }
+.playbooks-toggle:hover { color:#94a3b8; }
+.playbooks-grid { display:flex; gap:0; }
+.playbooks-grid.collapsed { display:none; }
+
+.playbook-col { flex:1; padding:14px 10px; border-right:1px dashed #1e3a5f; display:flex; flex-direction:column; gap:7px; min-width:180px; }
+.playbook-col:last-child { border-right:none; }
+.playbook-col-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#334155; margin-bottom:2px; }
+
+.trigger-card { border-radius:8px; padding:9px 10px; border:1.5px solid transparent; position:relative; }
+.trigger-card.crit { background:rgba(239,68,68,.1);  border-color:rgba(239,68,68,.3); }
+.trigger-card.high { background:rgba(232,93,4,.1);   border-color:rgba(232,93,4,.3); }
+.trigger-card.med  { background:rgba(59,130,246,.08); border-color:rgba(59,130,246,.2); }
+
+.trigger-priority { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; padding:2px 7px; border-radius:20px; margin-bottom:5px; }
+.tp-crit { background:rgba(239,68,68,.2); color:#fca5a5; border:1px solid rgba(239,68,68,.3); }
+.tp-high { background:rgba(232,93,4,.2);  color:#fdba74; border:1px solid rgba(232,93,4,.3); }
+.tp-med  { background:rgba(59,130,246,.15); color:#93c5fd; border:1px solid rgba(59,130,246,.25); }
+
+.trigger-row { display:flex; align-items:baseline; gap:5px; margin-bottom:3px; }
+.trigger-row-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#475569; white-space:nowrap; flex-shrink:0; }
+.trigger-row-val   { font-size:10.5px; font-weight:600; color:#cbd5e1; line-height:1.3; }
+
+.trigger-type { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; padding:2px 7px; border-radius:4px; margin-top:4px; }
+.tt-auto  { background:rgba(34,197,94,.12); color:#86efac; border:1px solid rgba(34,197,94,.2); }
+.tt-human { background:rgba(168,85,247,.12); color:#d8b4fe; border:1px solid rgba(168,85,247,.2); }
+.tt-both  { background:rgba(251,191,36,.1);  color:#fcd34d; border:1px solid rgba(251,191,36,.2); }
+
+.trigger-impact-row { display:flex; gap:4px; flex-wrap:wrap; margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,.06); }
+.impact-badge { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; padding:2px 7px; border-radius:4px; white-space:nowrap; }
+.ib-churn { background:rgba(239,68,68,.15); color:#fca5a5; border:1px solid rgba(239,68,68,.25); }
+.ib-mrr   { background:rgba(34,197,94,.12); color:#86efac; border:1px solid rgba(34,197,94,.2); }
+
+/* ── EXECUTIVE DASHBOARD ── */
+.exec-wrap { max-width:1480px; margin:0 auto 20px; display:grid; grid-template-columns:1fr auto; gap:16px; align-items:start; }
+@media(max-width:1100px){ .exec-wrap { grid-template-columns:1fr; } }
+
+/* Top 5 palancas */
+.top5-panel { background:var(--dark); border-radius:var(--radius); border:1px solid #1e3a5f; overflow:hidden; }
+.top5-head  { padding:14px 20px 10px; border-bottom:1px solid #1e3a5f; display:flex; align-items:center; gap:10px; }
+.top5-head-icon  { font-size:18px; }
+.top5-head-title { font-size:13px; font-weight:700; color:#f1f5f9; }
+.top5-head-sub   { font-size:11px; color:#475569; margin-top:1px; }
+.top5-table { width:100%; border-collapse:collapse; }
+.top5-table th { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#334155; padding:8px 14px; text-align:left; border-bottom:1px solid #1e3a5f; white-space:nowrap; }
+.top5-table td { font-size:11.5px; padding:9px 14px; border-bottom:1px solid #0f1f35; vertical-align:middle; }
+.top5-table tr:last-child td { border-bottom:none; }
+.top5-table tr:hover td { background:rgba(255,255,255,.02); }
+.top5-rank { display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; font-size:10px; font-weight:800; flex-shrink:0; }
+.rank-1 { background:#ef4444; color:#fff; }
+.rank-2 { background:#f97316; color:#fff; }
+.rank-3 { background:#eab308; color:#0f172a; }
+.rank-4 { background:#3b82f6; color:#fff; }
+.rank-5 { background:#8b5cf6; color:#fff; }
+.top5-trigger { font-weight:700; color:#f1f5f9; font-size:11.5px; }
+.top5-stage   { font-size:9px; font-weight:600; color:#475569; margin-top:1px; }
+.top5-action  { color:#94a3b8; font-size:11px; }
+.top5-churn   { color:#fca5a5; font-size:11px; font-weight:600; }
+.top5-mrr     { color:#86efac; font-size:11px; font-weight:600; }
+.crit-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#ef4444; margin-right:5px; box-shadow:0 0 6px rgba(239,68,68,.6); }
+
+/* Impact summary */
+.impact-panel { background:var(--dark); border-radius:var(--radius); border:1px solid #1e3a5f; overflow:hidden; min-width:260px; }
+.impact-head  { padding:14px 20px 10px; border-bottom:1px solid #1e3a5f; display:flex; align-items:center; gap:8px; }
+.impact-head-icon  { font-size:18px; }
+.impact-head-title { font-size:13px; font-weight:700; color:#f1f5f9; }
+.impact-head-sub   { font-size:11px; color:#475569; margin-top:1px; }
+.impact-body { padding:14px 18px 16px; display:flex; flex-direction:column; gap:10px; }
+.impact-metric { display:flex; flex-direction:column; gap:3px; }
+.impact-metric-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#475569; }
+.impact-metric-value { font-size:26px; font-weight:800; letter-spacing:-1px; line-height:1; }
+.impact-metric-sub   { font-size:10px; color:#475569; }
+.val-green { color:#4ade80; }
+.val-red   { color:#f87171; }
+.impact-divider { height:1px; background:#1e3a5f; }
+.impact-drivers { display:flex; flex-direction:column; gap:5px; }
+.impact-drivers-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#475569; margin-bottom:2px; }
+.driver-row { display:flex; align-items:center; gap:7px; }
+.driver-bar-wrap { flex:1; height:4px; background:#1e293b; border-radius:2px; overflow:hidden; }
+.driver-bar { height:100%; border-radius:2px; }
+.driver-label { font-size:10px; font-weight:600; color:#94a3b8; white-space:nowrap; }
+.driver-pct   { font-size:10px; font-weight:700; color:#64748b; width:28px; text-align:right; }
+
+/* ── NDR BUTTON ── */
+.ndr-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  background:linear-gradient(135deg,#e85d04,#c2410c);
+  color:#fff; font-size:12px; font-weight:700;
+  padding:7px 16px; border-radius:8px; border:none;
+  cursor:pointer; letter-spacing:.2px;
+  box-shadow:0 2px 12px rgba(232,93,4,.35);
+  transition:all .2s; white-space:nowrap;
+}
+.ndr-btn:hover { transform:translateY(-1px); box-shadow:0 4px 20px rgba(232,93,4,.45); }
+
+/* ── NDR MODAL ── */
+.ndr-overlay {
+  position:fixed; inset:0; background:rgba(15,23,42,.75);
+  backdrop-filter:blur(6px); z-index:2000;
+  display:flex; align-items:flex-start; justify-content:center;
+  padding:20px; overflow-y:auto;
+  opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.ndr-overlay.open { opacity:1; pointer-events:all; }
+.ndr-modal {
+  background:#0f172a; border-radius:16px; width:100%; max-width:1100px;
+  border:1px solid #1e3a5f;
+  box-shadow:0 24px 80px rgba(0,0,0,.5);
+  transform:scale(.96) translateY(16px);
+  transition:transform .25s,opacity .25s; opacity:0;
+  margin:auto;
+}
+.ndr-overlay.open .ndr-modal { transform:scale(1) translateY(0); opacity:1; }
+
+.ndr-modal-header {
+  padding:20px 28px 16px; border-bottom:1px solid #1e3a5f;
+  display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+  position:sticky; top:0; background:#0f172a; z-index:2; border-radius:16px 16px 0 0;
+}
+.ndr-modal-header-left { display:flex; align-items:center; gap:12px; }
+.ndr-modal-icon { font-size:28px; }
+.ndr-modal-title { font-size:20px; font-weight:800; color:#f1f5f9; letter-spacing:-.4px; }
+.ndr-modal-sub   { font-size:12px; color:#475569; margin-top:3px; }
+.ndr-close {
+  width:32px; height:32px; border-radius:8px; border:1px solid #1e3a5f;
+  background:transparent; cursor:pointer; display:flex; align-items:center;
+  justify-content:center; color:#475569; font-size:16px; transition:all .15s; flex-shrink:0;
+}
+.ndr-close:hover { background:#1e293b; color:#f1f5f9; }
+
+.ndr-body { padding:24px 28px 28px; display:flex; flex-direction:column; gap:16px; }
+
+/* Impact summary bar */
+.ndr-impact-bar {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
+  background:#1e293b; border-radius:10px; padding:16px 20px;
+  border:1px solid #334155;
+}
+.ndr-impact-item { text-align:center; }
+.ndr-impact-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:#475569; margin-bottom:4px; }
+.ndr-impact-val   { font-size:22px; font-weight:800; letter-spacing:-1px; line-height:1; }
+.ndr-impact-sub   { font-size:10px; color:#475569; margin-top:3px; }
+.niv-red   { color:#f87171; }
+.niv-green { color:#4ade80; }
+.niv-blue  { color:#60a5fa; }
+.ndr-impact-divider { width:1px; background:#334155; }
+
+/* Blocks */
+.ndr-block {
+  border-radius:10px; border:1.5px solid #1e3a5f;
+  overflow:hidden;
+}
+.ndr-block-head {
+  padding:12px 16px; display:flex; align-items:center; gap:10px;
+  border-bottom:1px solid #1e3a5f;
+}
+.ndr-block-icon  { font-size:18px; }
+.ndr-block-title { font-size:13px; font-weight:700; color:#f1f5f9; flex:1; }
+.ndr-block-badge { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; padding:3px 9px; border-radius:20px; }
+.bb-crit { background:rgba(239,68,68,.2); color:#fca5a5; border:1px solid rgba(239,68,68,.3); }
+.bb-high { background:rgba(232,93,4,.2);  color:#fdba74; border:1px solid rgba(232,93,4,.3); }
+.bb-med  { background:rgba(59,130,246,.15); color:#93c5fd; border:1px solid rgba(59,130,246,.25); }
+
+.ndr-block-body { padding:14px 16px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media(max-width:700px){ .ndr-block-body { grid-template-columns:1fr; } }
+
+.ndr-sub-block { border-radius:8px; padding:11px 13px; }
+.nsb-data   { background:rgba(59,130,246,.07);  border:1px solid rgba(59,130,246,.15); }
+.nsb-auto   { background:rgba(232,93,4,.07);    border:1px solid rgba(232,93,4,.15); }
+.nsb-ai     { background:rgba(168,85,247,.07);  border:1px solid rgba(168,85,247,.15); }
+.nsb-impact { background:rgba(34,197,94,.07);   border:1px solid rgba(34,197,94,.15); }
+
+.nsb-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; margin-bottom:6px; display:flex; align-items:center; gap:4px; }
+.nsb-data   .nsb-label { color:#60a5fa; }
+.nsb-auto   .nsb-label { color:#fdba74; }
+.nsb-ai     .nsb-label { color:#d8b4fe; }
+.nsb-impact .nsb-label { color:#86efac; }
+
+.nsb-list { list-style:none; display:flex; flex-direction:column; gap:4px; }
+.nsb-list li { font-size:11px; color:#94a3b8; line-height:1.4; display:flex; align-items:baseline; gap:5px; }
+.nsb-list li::before { content:'→'; color:#334155; font-size:10px; flex-shrink:0; }
+
+.ndr-block-goal {
+  margin:0 16px 14px; padding:9px 12px;
+  background:rgba(34,197,94,.06); border:1px solid rgba(34,197,94,.15);
+  border-radius:7px; display:flex; align-items:center; gap:8px;
+}
+.ndr-block-goal-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#4ade80; white-space:nowrap; }
+.ndr-block-goal-text  { font-size:11.5px; font-weight:600; color:#86efac; }
+
+/* Responsive */
+@media(max-width:900px){
+  .pipeline { flex-direction:column; }
+  .stage-wrap { flex-direction:column; min-width:unset; }
+  .arrow { transform:rotate(90deg); width:100%; height:22px; }
+  .signals-grid { flex-direction:column; gap:10px; }
+  .signal-col { border-right:none; border-bottom:1px dashed #1e3a5f; padding:0 0 10px; }
+  .signal-col:last-child { border-bottom:none; }
+}
+@media(max-width:600px){ body { padding:16px 12px 40px; } .topbar-left h1 { font-size:18px; } }
+
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <h1>Customer Journey del usuario Defontana</h1>
+    <p>Recorrido real del cliente desde su perspectiva, identificando fricciones, momentos de valor y oportunidades de crecimiento</p>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;align-self:flex-start;margin-top:4px;">
+    <div class="topbar-badge">🤖 <span>Data & IA</span> habilitada por etapa</div>
+    <button class="ndr-btn" onclick="openNDR()">⚡ Acciones NDR</button>
+  </div>
+</div>
+
+<!-- EXECUTIVE DASHBOARD -->
+<div class="exec-wrap">
+
+  <!-- Top 5 palancas -->
+  <div class="top5-panel">
+    <div class="top5-head">
+      <span class="top5-head-icon">🎯</span>
+      <div>
+        <div class="top5-head-title">Top 5 palancas de crecimiento y retención</div>
+        <div class="top5-head-sub">Triggers críticos ordenados por impacto en negocio · Actuar aquí primero</div>
+      </div>
+    </div>
+    <table class="top5-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Trigger detectado</th>
+          <th>Acción</th>
+          <th>Impacto churn</th>
+          <th>Impacto MRR</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="rank-1 top5-rank">1</span></td>
+          <td>
+            <div class="top5-trigger"><span class="crit-dot"></span>Día 3 sin login</div>
+            <div class="top5-stage">Etapa 01 · Desconexión</div>
+          </td>
+          <td class="top5-action">WhatsApp automático + cápsula de valor</td>
+          <td class="top5-churn">-25 a -40%</td>
+          <td class="top5-mrr">Protege 15% MRR base</td>
+        </tr>
+        <tr>
+          <td><span class="rank-2 top5-rank">2</span></td>
+          <td>
+            <div class="top5-trigger"><span class="crit-dot"></span>Setup iniciado sin completar en 24h</div>
+            <div class="top5-stage">Etapa 04 · Activación</div>
+          </td>
+          <td class="top5-action">Notificación in-app + alerta CS</td>
+          <td class="top5-churn">-35% abandono</td>
+          <td class="top5-mrr">+$200 MRR / cliente</td>
+        </tr>
+        <tr>
+          <td><span class="rank-3 top5-rank">3</span></td>
+          <td>
+            <div class="top5-trigger"><span class="crit-dot"></span>Uso intensivo de módulo (&gt;umbral)</div>
+            <div class="top5-stage">Etapa 05 · Expansión</div>
+          </td>
+          <td class="top5-action">Propuesta automática módulo complementario</td>
+          <td class="top5-churn">Mayor stickiness</td>
+          <td class="top5-mrr">+30–40% por cliente</td>
+        </tr>
+        <tr>
+          <td><span class="rank-4 top5-rank">4</span></td>
+          <td>
+            <div class="top5-trigger">NPS &lt; 7 detectado</div>
+            <div class="top5-stage">Etapa 06 · Retención</div>
+          </td>
+          <td class="top5-action">Escalada inmediata a CS senior</td>
+          <td class="top5-churn">Salva MRR crítico</td>
+          <td class="top5-mrr">Protege NDR período</td>
+        </tr>
+        <tr>
+          <td><span class="rank-5 top5-rank">5</span></td>
+          <td>
+            <div class="top5-trigger">Reunión agendada confirmada</div>
+            <div class="top5-stage">Etapa 03 · Exploración</div>
+          </td>
+          <td class="top5-action">Brief automático con datos de uso del cliente</td>
+          <td class="top5-churn">-10% drop-off</td>
+          <td class="top5-mrr">Conversión +3x</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Impacto estimado del sistema -->
+  <div class="impact-panel">
+    <div class="impact-head">
+      <span class="impact-head-icon">📊</span>
+      <div>
+        <div class="impact-head-title">Impacto estimado del sistema</div>
+        <div class="impact-head-sub">Si se activan todos los playbooks</div>
+      </div>
+    </div>
+    <div class="impact-body">
+      <div class="impact-metric">
+        <div class="impact-metric-label">Reducción potencial de churn</div>
+        <div class="impact-metric-value val-red">-15% a -25%</div>
+        <div class="impact-metric-sub">Sobre base de clientes activos</div>
+      </div>
+      <div class="impact-divider"></div>
+      <div class="impact-metric">
+        <div class="impact-metric-label">Aumento potencial de MRR</div>
+        <div class="impact-metric-value val-green">+10% a +20%</div>
+        <div class="impact-metric-sub">Vía activación + expansión</div>
+      </div>
+      <div class="impact-divider"></div>
+      <div class="impact-drivers">
+        <div class="impact-drivers-label">Principales drivers</div>
+        <div class="driver-row">
+          <div class="driver-label">Activación</div>
+          <div class="driver-bar-wrap"><div class="driver-bar" style="width:85%;background:#22c55e"></div></div>
+          <div class="driver-pct">85%</div>
+        </div>
+        <div class="driver-row">
+          <div class="driver-label">Expansión</div>
+          <div class="driver-bar-wrap"><div class="driver-bar" style="width:70%;background:#3b82f6"></div></div>
+          <div class="driver-pct">70%</div>
+        </div>
+        <div class="driver-row">
+          <div class="driver-label">Retención</div>
+          <div class="driver-bar-wrap"><div class="driver-bar" style="width:60%;background:#a855f7"></div></div>
+          <div class="driver-pct">60%</div>
+        </div>
+        <div class="driver-row">
+          <div class="driver-label">Reactivación</div>
+          <div class="driver-bar-wrap"><div class="driver-bar" style="width:40%;background:#f97316"></div></div>
+          <div class="driver-pct">40%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <span class="legend-label">Capas:</span>
+  <div class="legend-item"><div class="legend-dot" style="background:#94a3b8"></div> Qué está viviendo</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> Fricciones</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> Qué espera lograr</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e85d04"></div> Intervención Defontana</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Momento de verdad</div>
+</div>
+
+<!-- SIGNALS LAYER -->
+<div class="signals-wrap">
+  <div class="signals-panel">
+    <div class="signals-head" onclick="toggleSignals()">
+      <span class="signals-head-icon">🤖</span>
+      <div class="signals-head-text">
+        <div class="signals-head-title">Señales de datos y oportunidades de acción</div>
+        <div class="signals-head-sub">Indicadores detectables por etapa para anticipar comportamiento e intervenir con data e IA en el momento correcto</div>
+      </div>
+      <button class="signals-toggle" id="signals-btn">Ocultar ▲</button>
+    </div>
+    <div class="signals-grid" id="signals-grid">
+      <div class="signal-col">
+        <div class="signal-col-label">01 · Desconexión</div>
+        <div class="signal-tag sig-risk">⬇ Bajo uso</div>
+        <div class="signal-tag sig-risk">🚫 Sin login reciente</div>
+        <div class="signal-tag sig-risk">📉 Caída en recurrencia</div>
+      </div>
+      <div class="signal-col">
+        <div class="signal-col-label">02 · Reactivación</div>
+        <div class="signal-tag sig-intent">📧 Apertura de mensajes</div>
+        <div class="signal-tag sig-intent">🖱 Click en CTA</div>
+        <div class="signal-tag sig-intent">💬 Respuesta a campaña</div>
+      </div>
+      <div class="signal-col">
+        <div class="signal-col-label">03 · Exploración</div>
+        <div class="signal-tag sig-intent">📅 Asistencia a reunión</div>
+        <div class="signal-tag sig-intent">👀 Interacción con propuesta</div>
+        <div class="signal-tag sig-intent">💡 Interés en casos de uso</div>
+      </div>
+      <div class="signal-col">
+        <div class="signal-col-label">04 · Activación</div>
+        <div class="signal-tag sig-action">⚙️ Inicio de configuración</div>
+        <div class="signal-tag sig-action">🔄 Avance parcial en setup</div>
+        <div class="signal-tag sig-risk">⛔ Abandono en setup</div>
+      </div>
+      <div class="signal-col">
+        <div class="signal-col-label">05 · Expansión</div>
+        <div class="signal-tag sig-growth">🔥 Uso intensivo de módulo</div>
+        <div class="signal-tag sig-growth">🔎 Interés en nuevas funciones</div>
+        <div class="signal-tag sig-growth">➕ Necesidades complementarias</div>
+      </div>
+      <div class="signal-col">
+        <div class="signal-col-label">06 · Retención</div>
+        <div class="signal-tag sig-growth">✅ Uso recurrente activo</div>
+        <div class="signal-tag sig-growth">🎓 Participación en academia</div>
+        <div class="signal-tag sig-growth">🤖 Automatización activa</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONNECTOR -->
+<div class="connector">
+  <div class="connector-line"></div>
+  <div class="connector-label">Journey del cliente ↓</div>
+  <div class="connector-line"></div>
+</div>
+
+<!-- PIPELINE -->
+<div class="pipeline-wrap"><div class="pipeline" id="pipeline">
+
+  <div class="stage-wrap"><div class="card card-1" onclick="openModal(0)">
+    <div class="card-strip strip-1"></div>
+    <div class="card-head"><div class="card-meta"><span class="stage-num">01</span><span class="stage-icon">😶‍🌫️</span></div><h2>Desconexión / Latencia</h2></div>
+    <div class="mental-pill">"No lo estoy usando tanto" / "No veo tanto valor ahora"</div>
+    <div class="card-cta"><button class="card-cta-btn">Ver detalle completo →</button></div>
+    <div class="card-kpi"><span style="font-size:13px">📊</span><span class="card-kpi-label">KPI</span><span class="card-kpi-value">Frecuencia de uso / Usuarios activos</span></div>
+  </div>
+  <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></div>
+
+  <div class="stage-wrap"><div class="card card-2" onclick="openModal(1)">
+    <div class="card-strip strip-2"></div>
+    <div class="card-head"><div class="card-meta"><span class="stage-num">02</span><span class="stage-icon">🔔</span></div><h2>Reactivación</h2></div>
+    <div class="mental-pill">"¿Esto realmente me sirve?"</div>
+    <div class="card-cta"><button class="card-cta-btn">Ver detalle completo →</button></div>
+    <div class="card-kpi"><span style="font-size:13px">📊</span><span class="card-kpi-label">KPI</span><span class="card-kpi-value">CTR / Tasa de agendamiento</span></div>
+  </div>
+  <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></div>
+
+  <div class="stage-wrap"><div class="card card-3" onclick="openModal(2)">
+    <div class="card-strip strip-3"></div>
+    <div class="card-head"><div class="card-meta"><span class="stage-num">03</span><span class="stage-icon">🔍</span></div><h2>Exploración de valor</h2></div>
+    <div class="mental-pill">"Veamos si esto realmente aplica para mí"</div>
+    <div class="card-cta"><button class="card-cta-btn">Ver detalle completo →</button></div>
+    <div class="card-kpi"><span style="font-size:13px">📊</span><span class="card-kpi-label">KPI</span><span class="card-kpi-value">% reuniones efectivas / Interés post reunión</span></div>
+  </div>
+  <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></div>
+
+  <div class="stage-wrap"><div class="card card-4" onclick="openModal(3)">
+    <div class="card-strip strip-4"></div>
+    <div class="card-head"><div class="card-meta"><span class="stage-num">04</span><span class="stage-icon">⚡</span></div><h2>Activación</h2></div>
+    <div class="mental-pill">"Quiero probar esto"</div>
+    <div class="card-cta"><button class="card-cta-btn">Ver detalle completo →</button></div>
+    <div class="card-kpi"><span style="font-size:13px">📊</span><span class="card-kpi-label">KPI</span><span class="card-kpi-value">Activación en 48h / Uso inicial de feature</span></div>
+  </div>
+  <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></div>
+
+  <div class="stage-wrap"><div class="card card-5" onclick="openModal(4)">
+    <div class="card-strip strip-5"></div>
+    <div class="card-head"><div class="card-meta"><span class="stage-num">05</span><span class="stage-icon">📈</span></div><h2>Expansión</h2></div>
+    <div class="mental-pill">"Esto sí me aporta valor"</div>
+    <div class="card-cta"><button class="card-cta-btn">Ver detalle completo →</button></div>
+    <div class="card-kpi"><span style="font-size:13px">📊</span><span class="card-kpi-label">KPI</span><span class="card-kpi-value">MRR incremental / Wallet share</span></div>
+  </div>
+  <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></div>
+
+  <div class="stage-wrap"><div class="card card-6" onclick="openModal(5)">
+    <div class="card-strip strip-6"></div>
+    <div class="card-head"><div class="card-meta"><span class="stage-num">06</span><span class="stage-icon">🔁</span></div><h2>Retención / Hábito</h2></div>
+    <div class="mental-pill">"Esto ya es parte de mi operación"</div>
+    <div class="card-cta"><button class="card-cta-btn">Ver detalle completo →</button></div>
+    <div class="card-kpi"><span style="font-size:13px">📊</span><span class="card-kpi-label">KPI</span><span class="card-kpi-value">NDR / Churn / Frecuencia de uso</span></div>
+  </div></div>
+
+</div></div>
+
+<!-- INSIGHTS LAYER -->
+<div class="insights-wrap">
+  <div class="insights-panel">
+    <div class="insights-head" onclick="toggleInsights()">
+      <span class="insights-head-icon">💡</span>
+      <div class="insights-head-text">
+        <div class="insights-head-title">Insights y oportunidades detectadas</div>
+        <div class="insights-head-sub">Problemas reales por etapa · Impacto en negocio · Oportunidades priorizadas para decisión</div>
+      </div>
+      <button class="insights-toggle" id="insights-btn">Ocultar ▲</button>
+    </div>
+    <div class="insights-grid" id="insights-grid">
+
+      <!-- 01 Desconexión -->
+      <div class="insight-col">
+        <div class="insight-col-label">01 · Desconexión</div>
+        <div class="insight-card priority-high">
+          <span class="priority-flag flag-high">🔴 Alta prioridad</span>
+          <div class="insight-problem">Clientes activos con uso menor a 1 vez/semana no reciben contacto proactivo</div>
+          <div class="insight-meta">
+            <div class="insight-meta-row"><span class="insight-meta-label">Churn</span><span class="insight-meta-val impact-high">+25–40% riesgo</span></div>
+            <div class="insight-meta-row"><span class="insight-meta-label">MRR en riesgo</span><span class="insight-meta-val impact-high">~15% base</span></div>
+          </div>
+          <div class="insight-opp"><div class="insight-opp-label">💡 Oportunidad</div>Alerta automática a CS cuando un cliente no hace login en 7 días. Recuperación estimada: 30–40% de latentes.</div>
+        </div>
+        <div class="insight-card priority-med">
+          <span class="priority-flag flag-med">🟡 Media prioridad</span>
+          <div class="insight-problem">Sin segmentación de clientes por nivel de riesgo de abandono</div>
+          <div class="insight-meta">
+            <div class="insight-meta-row"><span class="insight-meta-label">NDR</span><span class="insight-meta-val impact-med">-5 a -8 pts</span></div>
+          </div>
+          <div class="insight-opp"><div class="insight-opp-label">💡 Oportunidad</div>Health score por cliente basado en frecuencia, módulos activos y soporte. Priorizar intervención por score.</div>
+        </div>
+      </div>
+
+      <!-- 02 Reactivación -->
+      <div class="insight-col">
+        <div class="insight-col-label">02 · Reactivación</div>
+        <div class="insight-card priority-high">
+          <span class="priority-flag flag-high">🔴 Alta prioridad</span>
+          <div class="insight-problem">Mensajes de reactivación genéricos con CTR menor al 8%</div>
+          <div class="insight-meta">
+            <div class="insight-meta-row"><span class="insight-meta-label">CTR actual</span><span class="insight-meta-val impact-high">&lt; 8%</span></div>
+            <div class="insight-meta-row"><span class="insight-meta-label">Potencial</span><span class="insight-meta-val impact-pos">hasta 22%</span></div>
+          </div>
+          <div class="insight-opp"><div class="insight-opp-label">💡 Oportunidad</div>Personalizar mensajes con el módulo más usado del cliente y un caso de uso concreto. CTR estimado: 18–22%.</div>
+        </div>
+        <div class="insight-card priority-med">
+          <span class="priority-flag flag-med">🟡 Media prioridad</span>
+          <div class="insight-problem">Tasa de agendamiento post-contacto menor al 15%</div>
+          <div class="insight-meta">
+            <div class="insight-meta-row"><span class="insight-meta-label">Agendamiento</span><span class="insight-meta-val impact-med">~12–15%</span></div>
+          </div>
+          <div class="insight-opp"><div class="insight-opp-label">💡 Oportunidad</div>Incluir link de agenda directo en el mensaje + propuesta de sesión de 20 min con agenda clara y beneficio explícito.</div>
+        </div>
+      </div>
+
+      <!-- 03 Exploración -->
+      <div class="insight-col">
+        <div class="insight-col-label">03 · Exploración</div>
+        <div class="insight-card priority-high">
+          <span class="priority-flag flag-high">🔴 Alta prioridad</span>
+          <div class="insight-problem">Reuniones exploratorias sin diagnóstico previo del cliente</div>
+          <div class="insight-meta">
+            <div class="insight-meta-row"><span class="insight-meta-label">Conversión</span><span class="insight-meta-val impact-high">~18% sin prep</span></div>
+            <div class="insight-meta-row"><span class="insight-meta-label">Con prep</span><span class="insight-meta-val impact-pos">hasta 55%</span></div>
+          </div>
+          <div class="insight-opp"><div class="insight-opp-label">💡 Oportunidad</div>Brief de 5 min pre-reunión con datos de uso del cliente. Reunión con recomendación específica lista antes de entrar.</div>
+        </div>
+        <div class="insight-card priority-med">
+          <span class="priority-flag flag-med">🟡 Media prioridad</span>
+          <div class="insight-problem">Sin seguimiento estructurado post-reunión exploratoria</div>
+          <div class="insight-meta">
+            <div class="insight-meta-row"><span class="insight-meta-label">Drop-off</span><span class="insight-meta-val impact-med">~40% sin follow-up</span></div>
+          </div>
+          <div class="insight-opp"><div class="insight-opp-label">💡 Oportunidad</div>Secuencia automática de 3 touchpoints post-reunión con resumen + próximo paso concreto en menos de 24h.</div>
+        </div>
+      </div>
+
+      <!-- 04 Activación -->
+      <div class="insight-col">
+        <div class="insight-col-label">04 · Activación</div>
+        <div class="insight-card priority-high">
+          <span class="priority-flag flag-high">🔴 Alta prioridad</span>
+          <div class="insight-problem">Abandono en setup por falta de guía contextual en primeros pasos</div>
+          <div class="insight-meta">
+            <div class="insight-meta-row"><span class="insight-meta-label">Abandono</span><span class="insight-meta-val impact-high">~35% en setup</span></div>
+            <div class="insight-meta-row"><span class="insight-meta-label">MRR perdido</span><span class="insight-meta-val impact-high">~$200/cliente</span></div>
+          </div>
+          <div class="insight-opp"><div class="insight-opp-label">💡 Oportunidad</div>Checklist de activación in-app con progreso visible. Trigger a CS si el cliente lleva +24h sin completar el paso 1.</div>
+        </div>
+        <div class="insight-card priority-med">
+          <span class="priority-flag flag-med">🟡 Media prioridad</span>
+          <div class="insight-problem">Sin medición de tiempo hasta primera activación exitosa</div>
+          <div class="insight-meta">
+            <div class="insight-meta-row"><span class="insight-meta-label">Benchmark</span><span class="insight-meta-val impact-med">&lt; 48h ideal</span></div>
+          </div>
+          <div class="insight-opp"><div class="insight-opp-label">💡 Oportunidad</div>Medir "time to first value" por segmento. Clientes que activan en &lt;48h tienen 60% menos churn a 6 meses.</div>
+        </div>
+      </div>
+
+      <!-- 05 Expansión -->
+      <div class="insight-col">
+        <div class="insight-col-label">05 · Expansión</div>
+        <div class="insight-card priority-high">
+          <span class="priority-flag flag-high">🔴 Alta prioridad</span>
+          <div class="insight-problem">Clientes con uso intensivo de un módulo no reciben propuesta de expansión oportuna</div>
+          <div class="insight-meta">
+            <div class="insight-meta-row"><span class="insight-meta-label">MRR potencial</span><span class="insight-meta-val impact-pos">+30–40%</span></div>
+            <div class="insight-meta-row"><span class="insight-meta-label">Wallet share</span><span class="insight-meta-val impact-med">~35% capturado</span></div>
+          </div>
+          <div class="insight-opp"><div class="insight-opp-label">💡 Oportunidad</div>Trigger automático de propuesta de módulo complementario cuando uso supera umbral definido. Upsell contextual.</div>
+        </div>
+        <div class="insight-card priority-med">
+          <span class="priority-flag flag-med">🟡 Media prioridad</span>
+          <div class="insight-problem">Sin mapa de expansión natural por tipo de cliente o industria</div>
+          <div class="insight-meta">
+            <div class="insight-meta-row"><span class="insight-meta-label">NDR potencial</span><span class="insight-meta-val impact-pos">110–120%</span></div>
+          </div>
+          <div class="insight-opp"><div class="insight-opp-label">💡 Oportunidad</div>Definir rutas de expansión por segmento (retail, servicios, manufactura) con módulos recomendados en orden lógico.</div>
+        </div>
+      </div>
+
+      <!-- 06 Retención -->
+      <div class="insight-col">
+        <div class="insight-col-label">06 · Retención</div>
+        <div class="insight-card priority-high">
+          <span class="priority-flag flag-high">🔴 Alta prioridad</span>
+          <div class="insight-problem">Clientes habituados sin programa de formación continua ni comunidad activa</div>
+          <div class="insight-meta">
+            <div class="insight-meta-row"><span class="insight-meta-label">Churn riesgo</span><span class="insight-meta-val impact-med">+10% sin evolución</span></div>
+            <div class="insight-meta-row"><span class="insight-meta-label">NPS</span><span class="insight-meta-val impact-med">-15 pts sin contacto</span></div>
+          </div>
+          <div class="insight-opp"><div class="insight-opp-label">💡 Oportunidad</div>Programa de academia mensual + newsletter de nuevas funciones. Clientes formados tienen NPS 25 pts mayor.</div>
+        </div>
+        <div class="insight-card priority-med">
+          <span class="priority-flag flag-med">🟡 Media prioridad</span>
+          <div class="insight-problem">Sin programa estructurado de referidos para clientes promotores</div>
+          <div class="insight-meta">
+            <div class="insight-meta-row"><span class="insight-meta-label">CAC potencial</span><span class="insight-meta-val impact-pos">-40% vía referidos</span></div>
+          </div>
+          <div class="insight-opp"><div class="insight-opp-label">💡 Oportunidad</div>Identificar clientes con NPS &gt; 8 y activar programa de referidos con incentivo. Ratio estimado: 0.8 referidos/cliente.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- PLAYBOOKS LAYER -->
+<div class="playbooks-wrap">
+  <div class="playbooks-panel">
+    <div class="playbooks-head" onclick="togglePlaybooks()">
+      <span class="playbooks-head-icon">⚙️</span>
+      <div class="playbooks-head-text">
+        <div class="playbooks-head-title">Playbooks y triggers de acción por ciclo de vida</div>
+        <div class="playbooks-head-sub">Acciones concretas que ejecuta Defontana en cada momento del viaje · Automática 🤖 · Automática + Humana 🤝 · Humana 👤</div>
+      </div>
+      <button class="playbooks-toggle" id="playbooks-btn">Ocultar ▲</button>
+    </div>
+    <div class="playbooks-grid" id="playbooks-grid">
+
+      <!-- 01 -->
+      <div class="playbook-col">
+        <div class="playbook-col-label">01 · Desconexión</div>
+        <div class="trigger-card crit">
+          <span class="trigger-priority tp-crit">🚨 Crítica</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">Día 3 sin login</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">WhatsApp + cápsula de valor</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">Evita abandono temprano</span></div>
+          <span class="trigger-type tt-both">🤝 Auto + Humana</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-churn">📉 Reduce churn temprano</span><span class="impact-badge ib-mrr">💰 Protege MRR en riesgo</span></div>
+        </div>
+        <div class="trigger-card high">
+          <span class="trigger-priority tp-high">🔴 Alta</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">Día 7 sin login</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">Alerta CS + llamada proactiva</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">Recupera 30–40% latentes</span></div>
+          <span class="trigger-type tt-human">👤 Humana</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-churn">📉 Reduce churn latente</span><span class="impact-badge ib-mrr">💰 Recupera MRR en riesgo</span></div>
+        </div>
+        <div class="trigger-card med">
+          <span class="trigger-priority tp-med">🔵 Media</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">Caída &gt;50% uso mensual</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">Email con caso de uso relevante</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">Reactiva interés pasivo</span></div>
+          <span class="trigger-type tt-auto">🤖 Automática</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-churn">📉 Frena desconexión</span></div>
+        </div>
+      </div>
+
+      <!-- 02 -->
+      <div class="playbook-col">
+        <div class="playbook-col-label">02 · Reactivación</div>
+        <div class="trigger-card crit">
+          <span class="trigger-priority tp-crit">🚨 Crítica</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">Click en CTA de campaña</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">Secuencia de 3 mails + link agenda</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">CTR 18–22% vs 8% actual</span></div>
+          <span class="trigger-type tt-auto">🤖 Automática</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-churn">📉 Reduce abandono silencioso</span><span class="impact-badge ib-mrr">💰 Reactiva MRR dormido</span></div>
+        </div>
+        <div class="trigger-card high">
+          <span class="trigger-priority tp-high">🔴 Alta</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">Apertura de mail sin click</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">WhatsApp con propuesta directa</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">Rescata interés no convertido</span></div>
+          <span class="trigger-type tt-both">🤝 Auto + Humana</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-churn">📉 Evita pérdida de oportunidad</span></div>
+        </div>
+        <div class="trigger-card med">
+          <span class="trigger-priority tp-med">🔵 Media</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">Sin respuesta en 5 días</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">Cambio de canal de contacto</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">Aumenta alcance efectivo</span></div>
+          <span class="trigger-type tt-auto">🤖 Automática</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-mrr">💰 Amplía pipeline de reactivación</span></div>
+        </div>
+      </div>
+
+      <!-- 03 -->
+      <div class="playbook-col">
+        <div class="playbook-col-label">03 · Exploración</div>
+        <div class="trigger-card crit">
+          <span class="trigger-priority tp-crit">🚨 Crítica</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">Reunión agendada confirmada</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">Brief automático con datos de uso del cliente</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">Conversión +3x vs reunión genérica</span></div>
+          <span class="trigger-type tt-both">🤝 Auto + Humana</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-mrr">💰 Acelera cierre de expansión</span><span class="impact-badge ib-churn">📉 Reduce fricción exploratoria</span></div>
+        </div>
+        <div class="trigger-card high">
+          <span class="trigger-priority tp-high">🔴 Alta</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">Reunión realizada sin cierre</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">Follow-up en &lt;24h con resumen + próximo paso</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">Reduce drop-off post-reunión 40%</span></div>
+          <span class="trigger-type tt-auto">🤖 Automática</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-churn">📉 Evita enfriamiento post-reunión</span></div>
+        </div>
+      </div>
+
+      <!-- 04 -->
+      <div class="playbook-col">
+        <div class="playbook-col-label">04 · Activación</div>
+        <div class="trigger-card crit">
+          <span class="trigger-priority tp-crit">🚨 Crítica</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">Setup iniciado, sin completar en 24h</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">Notificación in-app + alerta CS</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">Reduce abandono en setup 35%</span></div>
+          <span class="trigger-type tt-both">🤝 Auto + Humana</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-churn">📉 Reduce churn en activación</span><span class="impact-badge ib-mrr">💰 Protege MRR de nuevos features</span></div>
+        </div>
+        <div class="trigger-card high">
+          <span class="trigger-priority tp-high">🔴 Alta</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">Primera tarea completada</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">Celebración in-app + sugerencia siguiente paso</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">Refuerza hábito de uso temprano</span></div>
+          <span class="trigger-type tt-auto">🤖 Automática</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-churn">📉 Ancla al cliente desde el inicio</span></div>
+        </div>
+        <div class="trigger-card med">
+          <span class="trigger-priority tp-med">🔵 Media</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">Activación completada en &lt;48h</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">Cápsula de academia módulo siguiente</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">Acelera expansión natural</span></div>
+          <span class="trigger-type tt-auto">🤖 Automática</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-mrr">💰 Incrementa MRR por upsell temprano</span></div>
+        </div>
+      </div>
+
+      <!-- 05 -->
+      <div class="playbook-col">
+        <div class="playbook-col-label">05 · Expansión</div>
+        <div class="trigger-card crit">
+          <span class="trigger-priority tp-crit">🚨 Crítica</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">Uso intensivo de módulo (&gt;umbral)</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">Propuesta automática módulo complementario</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">MRR +30–40% por cliente</span></div>
+          <span class="trigger-type tt-auto">🤖 Automática</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-mrr">💰 Expansión directa de MRR</span><span class="impact-badge ib-churn">📉 Mayor stickiness por módulos</span></div>
+        </div>
+        <div class="trigger-card high">
+          <span class="trigger-priority tp-high">🔴 Alta</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">3 meses de uso estable</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">Revisión de cuenta con CS + roadmap personalizado</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">Aumenta wallet share 25%</span></div>
+          <span class="trigger-type tt-human">👤 Humana</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-mrr">💰 Incrementa MRR por cuenta</span><span class="impact-badge ib-churn">📉 Reduce riesgo de estancamiento</span></div>
+        </div>
+      </div>
+
+      <!-- 06 -->
+      <div class="playbook-col">
+        <div class="playbook-col-label">06 · Retención</div>
+        <div class="trigger-card crit">
+          <span class="trigger-priority tp-crit">🚨 Crítica</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">NPS &lt; 7 detectado</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">Escalada inmediata a CS senior</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">Previene churn en riesgo alto</span></div>
+          <span class="trigger-type tt-human">👤 Humana</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-churn">📉 Salva MRR en riesgo crítico</span><span class="impact-badge ib-mrr">💰 Protege NDR del período</span></div>
+        </div>
+        <div class="trigger-card high">
+          <span class="trigger-priority tp-high">🔴 Alta</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">NPS &gt; 8 detectado</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">Invitación a programa de referidos</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">CAC -40% vía referidos</span></div>
+          <span class="trigger-type tt-both">🤝 Auto + Humana</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-mrr">💰 Nuevo MRR a menor costo</span><span class="impact-badge ib-churn">📉 Promotores no cancelan</span></div>
+        </div>
+        <div class="trigger-card med">
+          <span class="trigger-priority tp-med">🔵 Media</span>
+          <div class="trigger-row"><span class="trigger-row-label">Trigger</span><span class="trigger-row-val">Nuevo módulo disponible</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Acción</span><span class="trigger-row-val">Newsletter personalizado + demo corta</span></div>
+          <div class="trigger-row"><span class="trigger-row-label">Impacto</span><span class="trigger-row-val">Mantiene percepción de valor</span></div>
+          <span class="trigger-type tt-auto">🤖 Automática</span>
+          <div class="trigger-impact-row"><span class="impact-badge ib-churn">📉 Reduce desgaste por falta de novedad</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span class="footer-brand">DEFONTANA</span>
+  <span class="footer-note">Customer Journey Map · Perspectiva del cliente · Uso interno — Comercial, Producto & Customer Success</span>
+</div>
+
+<!-- ════ MODAL ════ -->
+<div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <span class="modal-stage-icon" id="m-icon"></span>
+        <div>
+          <div class="modal-stage-num" id="m-num"></div>
+          <div class="modal-title" id="m-title"></div>
+          <div class="modal-subtitle" id="m-subtitle"></div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-toggle-bar">
+      <span class="toggle-label">Vista:</span>
+      <button class="toggle-btn active" id="btn-client" onclick="setView('client')">👤 Cliente</button>
+      <button class="toggle-btn" id="btn-biz" onclick="setView('biz')">📊 Negocio</button>
+    </div>
+    <div class="modal-body">
+      <!-- CLIENT VIEW -->
+      <div class="view-panel active" id="view-client">
+        <div class="modal-grid">
+          <div>
+            <div class="modal-section ms-mental" id="m-mental" style="margin-bottom:10px">
+              <div class="modal-section-label">🧠 Estado mental</div>
+              <div class="modal-section-text" id="m-mental-text"></div>
+            </div>
+            <div class="modal-section ms-living" id="m-living" style="margin-bottom:10px">
+              <div class="modal-section-label">👁 Qué está viviendo</div>
+              <div class="modal-section-text" id="m-living-text"></div>
+            </div>
+            <div class="modal-section ms-goal">
+              <div class="modal-section-label">🎯 Qué espera lograr</div>
+              <div class="modal-section-text" id="m-goal-text"></div>
+            </div>
+          </div>
+          <div>
+            <div class="modal-section ms-friction" style="margin-bottom:10px">
+              <div class="modal-section-label">⚠️ Fricciones</div>
+              <div class="modal-section-text" id="m-friction-text"></div>
+            </div>
+            <div class="modal-section ms-action">
+              <div class="modal-section-label">🟠 Intervención Defontana</div>
+              <div class="modal-section-text" id="m-action-text"></div>
+            </div>
+          </div>
+        </div>
+        <div class="ms-truth">
+          <div class="modal-section-label">💥 Momento de verdad <span class="truth-badge">⭐ Clave</span></div>
+          <div class="modal-section-text" id="m-truth-text"></div>
+        </div>
+        <div class="modal-bottom">
+          <div class="modal-bottom-title">Datos & señales de esta etapa</div>
+          <div class="kpi-highlight">
+            <span class="kpi-hl-icon">📊</span>
+            <span class="kpi-hl-label">KPI Principal</span>
+            <span class="kpi-hl-value" id="m-kpi"></span>
+          </div>
+          <div class="signals-row" id="m-signals"></div>
+          <div class="badges-row" id="m-badges"></div>
+        </div>
+      </div>
+      <!-- BUSINESS VIEW -->
+      <div class="view-panel" id="view-biz">
+        <div class="biz-grid">
+          <div class="biz-card biz-mrr">
+            <div class="biz-card-icon">💰</div>
+            <div class="biz-card-label">Impacto en MRR</div>
+            <div class="biz-card-value" id="b-mrr-val"></div>
+            <div class="biz-card-sub" id="b-mrr-sub" style="color:#16a34a"></div>
+          </div>
+          <div class="biz-card biz-churn">
+            <div class="biz-card-icon">📉</div>
+            <div class="biz-card-label">Impacto en Churn</div>
+            <div class="biz-card-value" id="b-churn-val"></div>
+            <div class="biz-card-sub" id="b-churn-sub" style="color:#b91c1c"></div>
+          </div>
+          <div class="biz-card biz-ndr">
+            <div class="biz-card-icon">🔄</div>
+            <div class="biz-card-label">Impacto en NDR</div>
+            <div class="biz-card-value" id="b-ndr-val"></div>
+            <div class="biz-card-sub" id="b-ndr-sub" style="color:#1d4ed8"></div>
+          </div>
+        </div>
+        <div class="biz-insight">
+          <div class="biz-insight-label">💡 Insight estratégico</div>
+          <div class="biz-insight-text" id="b-insight"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-nav">
+        <button class="nav-btn" id="btn-prev" onclick="navigate(-1)">← Anterior</button>
+        <button class="nav-btn" id="btn-next-nav" onclick="navigate(1)">Siguiente →</button>
+      </div>
+      <div class="action-btns">
+        <button class="action-btn btn-revenue" onclick="setView('biz')">Ver impacto en revenue 💰</button>
+        <button class="action-btn btn-next" id="btn-next-stage" onclick="navigate(1)">Siguiente etapa →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NDR MODAL -->
+<div class="ndr-overlay" id="ndr-overlay" onclick="handleNDROverlay(event)">
+<div class="ndr-modal" id="ndr-modal">
+
+  <div class="ndr-modal-header">
+    <div class="ndr-modal-header-left">
+      <span class="ndr-modal-icon">⚡</span>
+      <div>
+        <div class="ndr-modal-title">Acciones NDR — Palancas de ingeniería</div>
+        <div class="ndr-modal-sub">Qué construir · Por qué importa · Qué impacto tendrá en el negocio</div>
+      </div>
+    </div>
+    <button class="ndr-close" onclick="closeNDR()">✕</button>
+  </div>
+
+  <div class="ndr-body">
+
+    <!-- Impact bar -->
+    <div class="ndr-impact-bar">
+      <div class="ndr-impact-item">
+        <div class="ndr-impact-label">Reducción de churn</div>
+        <div class="ndr-impact-val niv-red">1,7% → 0,8%</div>
+        <div class="ndr-impact-sub">-53% sobre tasa actual</div>
+      </div>
+      <div class="ndr-impact-item">
+        <div class="ndr-impact-label">Incremento de MRR</div>
+        <div class="ndr-impact-val niv-green">+15% a +25%</div>
+        <div class="ndr-impact-sub">Vía activación + expansión</div>
+      </div>
+      <div class="ndr-impact-item">
+        <div class="ndr-impact-label">Mejora de NDR</div>
+        <div class="ndr-impact-val niv-blue">98% → 101%+</div>
+        <div class="ndr-impact-sub">Expansión supera cancelaciones</div>
+      </div>
+    </div>
+
+    <!-- BLOQUE 1: Churn -->
+    <div class="ndr-block">
+      <div class="ndr-block-head" style="background:rgba(239,68,68,.06)">
+        <span class="ndr-block-icon">🛡️</span>
+        <span class="ndr-block-title">1. Reducción de churn</span>
+        <span class="ndr-block-badge bb-crit">🚨 Prioridad crítica</span>
+      </div>
+      <div class="ndr-block-body">
+        <div class="ndr-sub-block nsb-data">
+          <div class="nsb-label">📊 Modelo predictivo de churn</div>
+          <ul class="nsb-list">
+            <li>Frecuencia de login por usuario</li>
+            <li>Uso de módulos activos</li>
+            <li>Volumen de emisión de documentos</li>
+            <li>Tickets abiertos y tiempo de resolución</li>
+          </ul>
+        </div>
+        <div class="ndr-sub-block nsb-auto">
+          <div class="nsb-label">⚙️ Automatizaciones requeridas</div>
+          <ul class="nsb-list">
+            <li>Trigger automático: sin login día 3 y día 7</li>
+            <li>Trigger: caída de uso &gt;50% en 30 días</li>
+            <li>Activación multicanal: CRM + WhatsApp + In-App</li>
+            <li>Score de riesgo actualizado en tiempo real</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ndr-block-goal">
+        <span class="ndr-block-goal-label">🎯 Objetivo</span>
+        <span class="ndr-block-goal-text">Reducir churn de 1,7% a 0,8% · Protección directa de MRR base</span>
+      </div>
+    </div>
+
+    <!-- BLOQUE 2: Activación -->
+    <div class="ndr-block">
+      <div class="ndr-block-head" style="background:rgba(232,93,4,.06)">
+        <span class="ndr-block-icon">⚡</span>
+        <span class="ndr-block-title">2. Activación y adopción</span>
+        <span class="ndr-block-badge bb-high">🔴 Alta prioridad</span>
+      </div>
+      <div class="ndr-block-body">
+        <div class="ndr-sub-block nsb-auto">
+          <div class="nsb-label">⚙️ Onboarding inteligente</div>
+          <ul class="nsb-list">
+            <li>Checklists dinámicos por perfil de cliente</li>
+            <li>Sugerencias contextuales en cada paso</li>
+            <li>Recordatorios automáticos si hay inactividad</li>
+            <li>Medición de "time to first value" por segmento</li>
+          </ul>
+        </div>
+        <div class="ndr-sub-block nsb-ai">
+          <div class="nsb-label">🤖 Agentes proactivos en producto</div>
+          <ul class="nsb-list">
+            <li>Detectan bajo uso y alertan al usuario</li>
+            <li>Recomiendan la siguiente acción concreta</li>
+            <li>Empujan el siguiente paso sin fricción</li>
+            <li>Integración con Academia: cápsulas por comportamiento</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ndr-block-goal">
+        <span class="ndr-block-goal-label">🎯 Objetivo</span>
+        <span class="ndr-block-goal-text">Aumentar adopción de features · Reducir churn temprano en primeros 90 días</span>
+      </div>
+    </div>
+
+    <!-- BLOQUE 3: Expansión -->
+    <div class="ndr-block">
+      <div class="ndr-block-head" style="background:rgba(34,197,94,.05)">
+        <span class="ndr-block-icon">📈</span>
+        <span class="ndr-block-title">3. Expansión de MRR</span>
+        <span class="ndr-block-badge bb-high">🔴 Alta prioridad</span>
+      </div>
+      <div class="ndr-block-body">
+        <div class="ndr-sub-block nsb-ai">
+          <div class="nsb-label">🤖 Motor de recomendaciones IA</div>
+          <ul class="nsb-list">
+            <li>Cross-sell y upsell automático contextual</li>
+            <li>Basado en uso real, industria y madurez del cliente</li>
+            <li>Ranking de módulos más probables de adoptar</li>
+            <li>Propuesta generada automáticamente para CS</li>
+          </ul>
+        </div>
+        <div class="ndr-sub-block nsb-auto">
+          <div class="nsb-label">⚙️ Triggers de expansión</div>
+          <ul class="nsb-list">
+            <li>Uso intensivo de módulo supera umbral definido</li>
+            <li>Necesidades complementarias detectadas por IA</li>
+            <li>3 meses de uso estable → revisión de cuenta</li>
+            <li>Notificación a CS con propuesta lista</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ndr-block-goal">
+        <span class="ndr-block-goal-label">🎯 Objetivo</span>
+        <span class="ndr-block-goal-text">Incrementar MRR promedio +30–40% por cliente · Aumentar wallet share</span>
+      </div>
+    </div>
+
+    <!-- BLOQUE 4: Automatización -->
+    <div class="ndr-block">
+      <div class="ndr-block-head" style="background:rgba(168,85,247,.05)">
+        <span class="ndr-block-icon">🤖</span>
+        <span class="ndr-block-title">4. Automatización y escalabilidad</span>
+        <span class="ndr-block-badge bb-med">🔵 Media prioridad</span>
+      </div>
+      <div class="ndr-block-body">
+        <div class="ndr-sub-block nsb-ai">
+          <div class="nsb-label">🤖 Chat IA como canal principal</div>
+          <ul class="nsb-list">
+            <li>Escalar atención automatizada de 30% a 90%</li>
+            <li>Resolución de consultas frecuentes sin humano</li>
+            <li>Derivación inteligente a CS cuando se requiere</li>
+            <li>Historial de interacciones integrado al CRM</li>
+          </ul>
+        </div>
+        <div class="ndr-sub-block nsb-auto">
+          <div class="nsb-label">⚙️ Reducción de dependencia humana</div>
+          <ul class="nsb-list">
+            <li>Automatización de soporte básico y repetitivo</li>
+            <li>Flujos de onboarding sin intervención manual</li>
+            <li>Reportes automáticos de salud del cliente</li>
+            <li>Escalar sin aumentar headcount de CS</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ndr-block-goal">
+        <span class="ndr-block-goal-label">🎯 Objetivo</span>
+        <span class="ndr-block-goal-text">Escalar operación sin aumentar headcount · CS enfocado en alto valor</span>
+      </div>
+    </div>
+
+    <!-- BLOQUE 5: Impacto global -->
+    <div class="ndr-block" style="border-color:rgba(34,197,94,.3)">
+      <div class="ndr-block-head" style="background:rgba(34,197,94,.08)">
+        <span class="ndr-block-icon">🏆</span>
+        <span class="ndr-block-title">5. Impacto global del sistema</span>
+        <span class="ndr-block-badge" style="background:rgba(34,197,94,.2);color:#86efac;border:1px solid rgba(34,197,94,.3)">Resultado esperado</span>
+      </div>
+      <div style="padding:14px 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <div class="ndr-sub-block nsb-impact" style="text-align:center">
+          <div class="nsb-label" style="justify-content:center">📉 Churn</div>
+          <div style="font-size:24px;font-weight:800;color:#4ade80;letter-spacing:-1px">1,7% → 0,8%</div>
+          <div style="font-size:10px;color:#475569;margin-top:4px">-53% sobre tasa actual</div>
+        </div>
+        <div class="ndr-sub-block nsb-impact" style="text-align:center">
+          <div class="nsb-label" style="justify-content:center">💰 MRR</div>
+          <div style="font-size:24px;font-weight:800;color:#4ade80;letter-spacing:-1px">+15–25%</div>
+          <div style="font-size:10px;color:#475569;margin-top:4px">Activación + expansión</div>
+        </div>
+        <div class="ndr-sub-block nsb-impact" style="text-align:center">
+          <div class="nsb-label" style="justify-content:center">🔄 NDR</div>
+          <div style="font-size:24px;font-weight:800;color:#60a5fa;letter-spacing:-1px">98% → 101%+</div>
+          <div style="font-size:10px;color:#475569;margin-top:4px">Expansión supera cancelaciones</div>
+        </div>
+      </div>
+      <div style="padding:0 16px 14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="ndr-sub-block nsb-data">
+          <div class="nsb-label">📊 Drivers principales</div>
+          <ul class="nsb-list">
+            <li>Activación temprana (&lt;48h) — mayor impacto en churn</li>
+            <li>Expansión contextual — mayor impacto en MRR</li>
+            <li>Retención proactiva — sostiene NDR &gt;100%</li>
+          </ul>
+        </div>
+        <div class="ndr-sub-block nsb-auto">
+          <div class="nsb-label">⚙️ Condiciones de éxito</div>
+          <ul class="nsb-list">
+            <li>Datos de uso en tiempo real disponibles</li>
+            <li>CRM integrado con señales de comportamiento</li>
+            <li>CS alineado con playbooks automatizados</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+const STAGES = [
+  {
+    num:'01', icon:'😶‍🌫️', title:'Desconexión / Latencia',
+    subtitle:'El cliente tiene la cuenta activa pero no ve razón para usarla',
+    mental:'"No lo estoy usando tanto" / "No veo tanto valor ahora"',
+    living:'Usa el sistema solo para lo mínimo. No explora funcionalidades nuevas ni tiene urgencia por aprender.',
+    goal:'Resolver rápido lo básico. No complicarse. Mantener la operación funcionando.',
+    friction:'No entiende el potencial completo de la plataforma. Siente que aprender requiere tiempo. No percibe un beneficio inmediato.',
+    action:'Comunicación genérica o poco relevante. Poca presencia proactiva percibida por parte de Defontana.',
+    truth:'No ocurre todavía. El cliente sigue en inercia.',
+    kpi:'Frecuencia de uso / Usuarios activos',
+    signals:[
+      {label:'⬇ Bajo uso', cls:'sig-risk'},
+      {label:'🚫 Sin login reciente', cls:'sig-risk'},
+      {label:'📉 Caída en recurrencia', cls:'sig-risk'}
+    ],
+    badges:[
+      {label:'🔴 Riesgo de churn', cls:'badge-risk'},
+      {label:'🟡 Gap: sin contacto proactivo', cls:'badge-gap'}
+    ],
+    biz:{ mrr:'-8% potencial', mrrSub:'Riesgo de cancelación silenciosa', churn:'+15% riesgo', churnSub:'Clientes latentes son los primeros en irse', ndr:'< 90%', ndrSub:'Sin expansión posible en este estado', insight:'Los clientes en latencia representan el mayor riesgo de churn silencioso. Cada día sin contacto proactivo aumenta la probabilidad de cancelación. Una intervención temprana basada en señales de uso puede recuperar hasta el 40% de estos clientes antes de que decidan irse.' }
+  },
+  {
+    num:'02', icon:'🔔', title:'Reactivación',
+    subtitle:'El cliente recibe un estímulo y evalúa si vale la pena volver',
+    mental:'"¿Esto realmente me sirve?"',
+    living:'Recibe un mensaje, banner, mail o WhatsApp. Decide si lo ignora o si hace clic. Evalúa si vale la pena dedicar tiempo.',
+    goal:'Encontrar algo útil y concreto. Ahorrar tiempo. Ver si hay una mejora real para su operación.',
+    friction:'Mensajes poco personalizados. Beneficio poco claro. Sensación de que será otra reunión sin valor.',
+    action:'Mensaje con propuesta de valor concreta. Invitación a una sesión útil, breve y aplicada.',
+    truth:'Hace clic o agenda una reunión.',
+    kpi:'CTR / Tasa de agendamiento',
+    signals:[
+      {label:'📧 Apertura de mensajes', cls:'sig-intent'},
+      {label:'🖱 Click en CTA', cls:'sig-intent'},
+      {label:'💬 Respuesta a campaña', cls:'sig-intent'}
+    ],
+    badges:[
+      {label:'🟡 Gap: mensaje no personalizado', cls:'badge-gap'},
+      {label:'🟢 Oportunidad: sesión de valor', cls:'badge-opp'}
+    ],
+    biz:{ mrr:'Neutro', mrrSub:'Aún sin impacto directo en revenue', churn:'-5% riesgo', churnSub:'El contacto reduce probabilidad de abandono', ndr:'Base', ndrSub:'Punto de partida para recuperar expansión', insight:'La tasa de reactivación exitosa depende directamente de la personalización del mensaje. Clientes contactados con contexto específico de su uso tienen 3x más probabilidad de agendar. Cada reunión agendada representa una oportunidad de expansión de ~$200 MRR promedio.' }
+  },
+  {
+    num:'03', icon:'🔍', title:'Exploración de valor',
+    subtitle:'El cliente evalúa si lo que ve aplica realmente a su negocio',
+    mental:'"Veamos si esto realmente aplica para mí"',
+    living:'Participa en una reunión o sesión exploratoria. Escucha recomendaciones. Contrasta lo que le muestran con su realidad.',
+    goal:'Entender oportunidades reales para su negocio. Detectar algo accionable. Sentir que el tiempo invertido valió la pena.',
+    friction:'Reunión genérica. Mucha explicación, poca aplicabilidad. No ve una ganancia concreta.',
+    action:'Insight personalizado. Recomendación concreta. Ejemplo aplicado a su operación.',
+    truth:'"Esto sí me puede servir"',
+    kpi:'% de reuniones efectivas / Interés post reunión',
+    signals:[
+      {label:'📅 Asistencia a reunión', cls:'sig-intent'},
+      {label:'👀 Interacción con propuesta', cls:'sig-intent'},
+      {label:'💡 Interés en casos de uso', cls:'sig-intent'}
+    ],
+    badges:[
+      {label:'🟢 Oportunidad: insight personalizado', cls:'badge-opp'},
+      {label:'🟡 Gap: reuniones genéricas', cls:'badge-gap'}
+    ],
+    biz:{ mrr:'+$150 potencial', mrrSub:'Por cliente que avanza a activación', churn:'-10% riesgo', churnSub:'Exploración activa reduce abandono', ndr:'92%', ndrSub:'Mejora con cada sesión efectiva', insight:'Las reuniones con insight personalizado tienen una tasa de conversión a activación 4x mayor que las genéricas. El costo de preparar una sesión personalizada se recupera en el primer mes de expansión del cliente.' }
+  },
+  {
+    num:'04', icon:'⚡', title:'Activación',
+    subtitle:'El cliente intenta implementar algo nuevo por primera vez',
+    mental:'"Quiero probar esto"',
+    living:'Intenta implementar una funcionalidad nueva. Configura algo por primera vez. Busca ejecutar una mejora concreta.',
+    goal:'Implementar algo útil sin fricción. Tener claridad paso a paso. Ver un resultado rápido.',
+    friction:'Setup complejo. Falta de guía clara. Dudas durante la configuración. Abandono si no ve avance rápido.',
+    action:'Onboarding guiado. Cápsula de academia. Ayuda contextual o acompañamiento directo.',
+    truth:'Primer uso exitoso.',
+    kpi:'Activación en 48h / Uso inicial de feature',
+    signals:[
+      {label:'⚙️ Inicio de configuración', cls:'sig-action'},
+      {label:'🔄 Avance parcial en setup', cls:'sig-action'},
+      {label:'⛔ Abandono en setup', cls:'sig-risk'}
+    ],
+    badges:[
+      {label:'🔴 Riesgo: abandono en setup', cls:'badge-risk'},
+      {label:'🟢 Oportunidad: onboarding guiado', cls:'badge-opp'},
+      {label:'🟡 Gap: falta de guía contextual', cls:'badge-gap'}
+    ],
+    biz:{ mrr:'+$200 promedio', mrrSub:'Por feature activada exitosamente', churn:'-20% riesgo', churnSub:'Activación exitosa ancla al cliente', ndr:'95%', ndrSub:'Base sólida para expansión futura', insight:'Los clientes que completan su primera activación en menos de 48h tienen un 60% menos de probabilidad de churn en los siguientes 6 meses. Cada punto de fricción en el setup representa una pérdida potencial de $200 MRR por cliente.' }
+  },
+  {
+    num:'05', icon:'📈', title:'Expansión',
+    subtitle:'El cliente ya usa el producto y está listo para crecer',
+    mental:'"Esto sí me aporta valor"',
+    living:'Ya usa una funcionalidad con éxito. Empieza a descubrir nuevas necesidades. Se abre a mejorar más partes de su operación.',
+    goal:'Seguir mejorando. Encontrar herramientas complementarias. Aprovechar mejor su software.',
+    friction:'No sabe qué más puede activar. No recibe recomendaciones oportunas. Puede enfriarse si nadie lo acompaña.',
+    action:'Recomendaciones inteligentes. Cross sell contextual. Upsell basado en uso real.',
+    truth:'Activa o compra una nueva solución.',
+    kpi:'MRR incremental / Wallet share',
+    signals:[
+      {label:'🔥 Uso intensivo de módulo', cls:'sig-growth'},
+      {label:'🔎 Interés en nuevas funciones', cls:'sig-growth'},
+      {label:'➕ Necesidades complementarias', cls:'sig-growth'}
+    ],
+    badges:[
+      {label:'🟢 Oportunidad: upsell contextual', cls:'badge-opp'},
+      {label:'🟡 Gap: sin recomendaciones proactivas', cls:'badge-gap'}
+    ],
+    biz:{ mrr:'+35% potencial', mrrSub:'Expansión promedio por cliente activo', churn:'-30% riesgo', churnSub:'Más módulos = mayor stickiness', ndr:'115%', ndrSub:'Expansión supera cancelaciones', insight:'Los clientes en fase de expansión tienen un LTV 3x mayor que los que permanecen en un solo módulo. Una recomendación contextual en el momento correcto tiene una tasa de conversión del 28% vs 6% de un upsell genérico.' }
+  },
+  {
+    num:'06', icon:'🔁', title:'Retención / Hábito',
+    subtitle:'El software ya es parte del ADN operativo del negocio',
+    mental:'"Esto ya es parte de mi operación"',
+    living:'Usa el sistema de forma recurrente. Integra el software a sus procesos. Genera hábitos y dependencia operativa.',
+    goal:'Mantener eficiencia. Seguir descubriendo mejoras. Sentir acompañamiento continuo.',
+    friction:'Estancamiento en el uso. Pérdida de interés por falta de evolución. Riesgo de desgaste o subutilización.',
+    action:'Formación continua. Automatizaciones. Recomendaciones proactivas. IA que sugiera mejoras o próximos pasos.',
+    truth:'Uso continuo sin fricción y con valor sostenido.',
+    kpi:'NDR / Churn / Frecuencia de uso',
+    signals:[
+      {label:'✅ Uso recurrente activo', cls:'sig-growth'},
+      {label:'🎓 Participación en academia', cls:'sig-growth'},
+      {label:'🤖 Automatización activa', cls:'sig-growth'}
+    ],
+    badges:[
+      {label:'🟢 Oportunidad: promotor / referido', cls:'badge-opp'},
+      {label:'🔴 Riesgo: desgaste sin evolución', cls:'badge-risk'}
+    ],
+    biz:{ mrr:'Estable +5%', mrrSub:'Crecimiento orgánico por hábito', churn:'< 3%', churnSub:'Clientes habituados raramente cancelan', ndr:'120%+', ndrSub:'Referidos y expansión natural', insight:'Los clientes en fase de hábito son los mejores embajadores de la marca. Un programa de referidos activado en esta etapa puede generar hasta 0.8 nuevos clientes por cliente activo. La inversión en formación continua reduce el churn en un 40% y aumenta el NPS en 25 puntos.' }
+  }
+];
+
+let currentIdx = 0;
+let currentView = 'client';
+
+function openModal(idx) {
+  currentIdx = idx;
+  currentView = 'client';
+  renderModal();
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('overlay')) closeModal();
+}
+
+function navigate(dir) {
+  const next = currentIdx + dir;
+  if (next < 0 || next >= STAGES.length) return;
+  currentIdx = next;
+  renderModal();
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('view-client').classList.toggle('active', v === 'client');
+  document.getElementById('view-biz').classList.toggle('active', v === 'biz');
+  document.getElementById('btn-client').classList.toggle('active', v === 'client');
+  document.getElementById('btn-biz').classList.toggle('active', v === 'biz');
+}
+
+function renderModal() {
+  const s = STAGES[currentIdx];
+  // Header
+  document.getElementById('m-icon').textContent     = s.icon;
+  document.getElementById('m-num').textContent      = `Etapa ${s.num}`;
+  document.getElementById('m-title').textContent    = s.title;
+  document.getElementById('m-subtitle').textContent = s.subtitle;
+  // Client view
+  document.getElementById('m-mental-text').textContent  = s.mental;
+  document.getElementById('m-living-text').innerHTML    = s.living;
+  document.getElementById('m-goal-text').innerHTML      = s.goal;
+  document.getElementById('m-friction-text').innerHTML  = s.friction;
+  document.getElementById('m-action-text').innerHTML    = s.action;
+  document.getElementById('m-truth-text').textContent   = s.truth;
+  document.getElementById('m-kpi').textContent          = s.kpi;
+  // Signals
+  document.getElementById('m-signals').innerHTML = s.signals.map(sg =>
+    `<span class="signal-chip ${sg.cls}">${sg.label}</span>`).join('');
+  // Badges
+  document.getElementById('m-badges').innerHTML = s.badges.map(b =>
+    `<span class="badge ${b.cls}">${b.label}</span>`).join('');
+  // Business view
+  document.getElementById('b-mrr-val').textContent   = s.biz.mrr;
+  document.getElementById('b-mrr-sub').textContent   = s.biz.mrrSub;
+  document.getElementById('b-churn-val').textContent = s.biz.churn;
+  document.getElementById('b-churn-sub').textContent = s.biz.churnSub;
+  document.getElementById('b-ndr-val').textContent   = s.biz.ndr;
+  document.getElementById('b-ndr-sub').textContent   = s.biz.ndrSub;
+  document.getElementById('b-insight').textContent   = s.biz.insight;
+  // Nav buttons
+  document.getElementById('btn-prev').disabled       = currentIdx === 0;
+  document.getElementById('btn-next-nav').disabled   = currentIdx === STAGES.length - 1;
+  document.getElementById('btn-next-stage').disabled = currentIdx === STAGES.length - 1;
+  // Reset to current view
+  setView(currentView);
+  // Scroll modal to top
+  document.getElementById('modal').scrollTop = 0;
+}
+
+function toggleSignals() {
+  const grid = document.getElementById('signals-grid');
+  const btn  = document.getElementById('signals-btn');
+  grid.classList.toggle('collapsed');
+  btn.textContent = grid.classList.contains('collapsed') ? 'Mostrar ▼' : 'Ocultar ▲';
+}
+
+function toggleInsights() {
+  const grid = document.getElementById('insights-grid');
+  const btn  = document.getElementById('insights-btn');
+  grid.classList.toggle('collapsed');
+  btn.textContent = grid.classList.contains('collapsed') ? 'Mostrar ▼' : 'Ocultar ▲';
+}
+
+function togglePlaybooks() {
+  const grid = document.getElementById('playbooks-grid');
+  const btn  = document.getElementById('playbooks-btn');
+  grid.classList.toggle('collapsed');
+  btn.textContent = grid.classList.contains('collapsed') ? 'Mostrar ▼' : 'Ocultar ▲';
+}
+
+function openNDR() {
+  document.getElementById('ndr-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeNDR() {
+  document.getElementById('ndr-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function handleNDROverlay(e) {
+  if (e.target === document.getElementById('ndr-overlay')) closeNDR();
+}
+
+document.addEventListener('keydown', e => {
+  if (document.getElementById('ndr-overlay').classList.contains('open') && e.key === 'Escape') { closeNDR(); return; }
+  if (!document.getElementById('overlay').classList.contains('open')) return;
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'ArrowRight') navigate(1);
+  if (e.key === 'ArrowLeft')  navigate(-1);
+});
+</script>
+</body>
+</html>
